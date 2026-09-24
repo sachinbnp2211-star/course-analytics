@@ -11,7 +11,7 @@
 ### 2. **Fresh Admin User Created** ✅
 - Username: `admin`
 - Email: `admin@example.com`
-- Password: `admin123` (scrypt encrypted)
+- Password: `admin123` (Werkzeug PBKDF2-SHA256 hash)
 - is_admin: `true`
 - is_active: `true`
 
@@ -158,7 +158,7 @@ python backend/tests/setup.py
 - Password always correct
 - No corrupted admin states possible
 
-✅ **Password Format**: Uses werkzeug scrypt hashing (secure)
+✅ **Password Format**: Uses Werkzeug PBKDF2-SHA256 hashing (secure and compatible with the supported Python runtime)
 
 ✅ **Frontend Detection**: isUserAdmin() reads from localStorage, no API call needed
 

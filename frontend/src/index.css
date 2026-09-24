@@ -1,479 +1,218 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap");
 
-/* ================================
-   DESIGN TOKENS
-================================ */
 :root {
-  /* Core Palette */
-  --color-bg: #0a0f1e;
-  --color-surface: #111827;
-  --color-surface-2: #1a2235;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-accent: rgba(52, 211, 153, 0.3);
-
-  /* Accent Colors */
-  --color-emerald: #10b981;
-  --color-emerald-light: #34d399;
-  --color-emerald-dark: #059669;
-  --color-cyan: #06b6d4;
-  --color-amber: #f59e0b;
-  --color-rose: #f43f5e;
-  --color-violet: #8b5cf6;
-
-  /* Text */
-  --color-text-primary: #f1f5f9;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
-
-  /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
-  --shadow-emerald: 0 8px 32px rgba(16, 185, 129, 0.25);
-  --shadow-cyan: 0 8px 32px rgba(6, 182, 212, 0.2);
-
-  /* Fonts */
-  --font-sans: "Outfit", "Space Grotesk", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
-
-  /* Radii */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-
-  /* Admin Shell colors (keep for backward compat) */
-  --admin-ink: #0b1f24;
-  --admin-muted: #4b5a5f;
-  --admin-sand: #f6f3ee;
-  --admin-card: #ffffff;
-  --admin-accent: #0f766e;
-  --admin-accent-2: #f59e0b;
-  --admin-accent-3: #0ea5e9;
-  --admin-shadow: 0 18px 40px rgba(10, 24, 29, 0.12);
-  --admin-font-sans: "Outfit", "Space Grotesk", sans-serif;
-  --admin-font-mono: "JetBrains Mono", monospace;
+  --ink: #102a2b;
+  --muted: #667c7d;
+  --subtle: #8da0a0;
+  --canvas: #f5f8f7;
+  --surface: #ffffff;
+  --surface-soft: #eef5f2;
+  --line: #dce8e4;
+  --brand: #087f78;
+  --brand-dark: #05635f;
+  --brand-soft: #dff3ed;
+  --accent: #e9a63b;
+  --danger: #c95757;
+  --shadow-sm: 0 2px 8px rgba(16, 42, 43, 0.05);
+  --shadow-md: 0 12px 28px rgba(16, 42, 43, 0.08);
+  --radius: 14px;
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-display: "Manrope", "DM Sans", sans-serif;
 }
 
-/* ================================
-   RESET & BASE
-================================ */
-*, *::before, *::after {
-  box-sizing: border-box;
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body, #root { min-width: 320px; min-height: 100%; }
+body {
   margin: 0;
-  padding: 0;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-/* Light mode (default) */
-html, html[data-theme="light"] {
-  color-scheme: light;
-}
-
-html[data-theme="light"] body {
-  background-color: #f0f9ff;
-  color: #0b1f24;
+  background: var(--canvas);
+  color: var(--ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
+body, button, input, textarea, select { font-family: var(--font-sans); }
+::selection { background: var(--brand-soft); color: var(--brand-dark); }
+:focus-visible { outline: 3px solid rgba(8, 127, 120, .35); outline-offset: 2px; }
 
-/* Dark mode */
-html[data-theme="dark"] {
-  color-scheme: dark;
-}
-
-html[data-theme="dark"] body {
-  background-color: #061311;
-  color: #e2e8f0;
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ================================
-   GLASSMORPHISM UTILITIES
-================================ */
-.glass {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.glass-dark {
-  background: rgba(10, 15, 30, 0.7);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.glass-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(15, 118, 110, 0.1);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.glass-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
-
-/* ================================
-   ADMIN SHELL
-================================ */
-.admin-shell {
-  position: relative;
+/* Shared application shell */
+.app-shell {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 20% 10%, rgba(14, 165, 233, 0.12), transparent 55%),
-    radial-gradient(circle at 90% 0%, rgba(245, 158, 11, 0.1), transparent 45%),
-    radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.08), transparent 50%),
-    linear-gradient(135deg, #f0f9ff 0%, #f8faf8 50%, #f1f5f4 100%);
-  overflow: hidden;
+    linear-gradient(180deg, rgba(223, 243, 237, .72), transparent 340px),
+    linear-gradient(90deg, rgba(16, 42, 43, .025) 1px, transparent 1px),
+    linear-gradient(rgba(16, 42, 43, .025) 1px, transparent 1px),
+    var(--canvas) !important;
+  background-size: auto, 32px 32px, 32px 32px, auto !important;
 }
-
-.admin-content {
-  position: relative;
-  z-index: 1;
-  animation: adminFade 0.5s ease-out;
+.app-shell .MuiAppBar-root {
+  background: rgba(255, 255, 255, .92) !important;
+  color: var(--ink) !important;
+  border-bottom: 1px solid var(--line) !important;
+  box-shadow: 0 1px 0 rgba(16, 42, 43, .02) !important;
+  backdrop-filter: blur(18px) !important;
 }
-
-.admin-ambient {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 0;
+.app-shell .MuiAppBar-root .shimmer-text {
+  background: none;
+  color: var(--ink);
+  -webkit-text-fill-color: initial;
+  animation: none;
 }
-
-.admin-orb {
-  position: absolute;
-  border-radius: 999px;
-  opacity: 0.5;
-  filter: blur(40px);
-  animation: adminFloat 14s ease-in-out infinite;
+.app-shell .MuiAppBar-root .MuiTypography-root { color: var(--ink); }
+.app-shell .MuiAppBar-root .MuiIconButton-root { color: var(--muted) !important; }
+.app-shell .MuiAppBar-root .MuiIconButton-root:hover {
+  color: var(--brand) !important;
+  background: var(--brand-soft) !important;
 }
-
-.admin-orb-1 {
-  width: 340px;
-  height: 340px;
-  background: radial-gradient(circle, rgba(15, 118, 110, 0.3), rgba(15, 118, 110, 0));
-  top: -100px;
-  left: -80px;
+.app-shell .MuiAppBar-root .MuiTextField-root .MuiOutlinedInput-root {
+  background: var(--surface-soft) !important;
+  color: var(--ink) !important;
+  border: 1px solid transparent !important;
 }
+.app-shell .MuiAppBar-root .MuiInputBase-input::placeholder { color: var(--muted) !important; opacity: 1; }
+.app-shell .MuiAppBar-root .MuiOutlinedInput-notchedOutline { border: 0 !important; }
 
-.admin-orb-2 {
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.28), rgba(245, 158, 11, 0));
-  top: 80px;
-  right: -140px;
-  animation-delay: 2s;
+.app-shell > .MuiContainer-root { max-width: 1280px; }
+.app-shell .hero-card {
+  background:
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px),
+    var(--ink) !important;
+  background-size: 34px 34px !important;
+  border: 0 !important;
+  box-shadow: var(--shadow-md) !important;
 }
-
-.admin-orb-3 {
-  width: 280px;
-  height: 280px;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.28), rgba(14, 165, 233, 0));
-  bottom: -60px;
-  left: 20%;
-  animation-delay: 4s;
+.app-shell .hero-card .MuiTypography-root { color: #fff; }
+.app-shell .hero-card .MuiTypography-body1 { color: rgba(255,255,255,.7); }
+.app-shell .hero-card .MuiChip-root {
+  background: rgba(255,255,255,.1) !important;
+  border-color: rgba(255,255,255,.18) !important;
 }
-
-.admin-grid {
-  position: absolute;
-  inset: -20%;
-  background-image:
-    linear-gradient(rgba(11, 31, 36, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(11, 31, 36, 0.04) 1px, transparent 1px);
-  background-size: 72px 72px;
-  transform: rotate(1deg);
-  opacity: 0.4;
+.app-shell .setup-card,
+.app-shell .tools-section,
+.app-shell .analytics-section,
+.app-shell .plan-section {
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
-
-/* ================================
-   NAVBAR MODERN GLOW
-================================ */
-.navbar-glow {
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.05),
-    0 8px 32px rgba(2, 44, 34, 0.5),
-    0 0 80px rgba(16, 185, 129, 0.05);
+.app-shell .tools-section > .MuiTypography-root,
+.app-shell .analytics-section > .MuiTypography-root,
+.app-shell .plan-section > .MuiTypography-root { color: var(--ink) !important; }
+.app-shell .MuiCard-root,
+.app-shell .MuiPaper-root { border-radius: var(--radius); }
+.app-shell .MuiAccordion-root {
+  border: 1px solid var(--line) !important;
+  box-shadow: none !important;
 }
+.app-shell .MuiAccordionSummary-root,
+.app-shell .MuiAccordionDetails-root { background: var(--surface) !important; }
+.app-shell .MuiListItem-root { transition: background .18s ease, border-color .18s ease; }
 
-/* ================================
-   METRIC CARDS (ADMIN)
-================================ */
-.metric-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-md);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+/* Product surfaces used by the existing widgets */
+.active-tool-box > .MuiCard-root,
+.active-tool-box .MuiCard-root {
+  border: 1px solid var(--line) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
-
-.metric-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
+.app-shell .MuiLinearProgress-root { background: #e4eeeb !important; }
+.app-shell .MuiLinearProgress-bar { background: var(--brand) !important; }
+.app-shell .progress-chart {
+  background: var(--surface) !important;
+  border: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
 }
-
-.metric-card::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: inherit;
+.app-shell .progress-chart .MuiGrid-container,
+.app-shell .progress-chart .MuiGrid-item {
+  min-width: 0 !important;
 }
-
-/* ================================
-   ANIMATIONS
-================================ */
-@keyframes adminFloat {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-20px); }
-}
-
-@keyframes adminFade {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0px); }
-}
-
-@keyframes adminPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-  70%  { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-16px); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-16px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
-@keyframes glow {
-  0%, 100% { opacity: 0.6; }
-  50%       { opacity: 1; }
-}
-
-/* ================================
-   LIVE DOT INDICATOR
-================================ */
-.admin-live-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6);
-  animation: adminPulse 1.8s infinite;
-  flex-shrink: 0;
-}
-
-/* ================================
-   ANIMATION UTILITY CLASSES
-================================ */
-.fade-in  { animation: fadeIn  0.5s ease-out both; }
-.slide-in { animation: slideIn 0.4s ease-out both; }
-.scale-in { animation: scaleIn 0.3s ease-out both; }
-
-/* ================================
-   SCROLLBAR STYLING
-================================ */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: rgba(15, 118, 110, 0.3); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(15, 118, 110, 0.55); }
-
-/* ================================
-   SHIMMER TEXT (LOGO)
-================================ */
-.shimmer-text {
-  background: linear-gradient(
-    90deg,
-    #ffffff 25%,
-    #d1fae5 50%,
-    #ffffff 75%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmer 4s linear infinite;
-}
-
-/* ================================
-   RESPONSIVE UTILITIES
-================================ */
-
-/* Prevent horizontal scrolling globally */
-html, body {
-  overflow-x: hidden;
-  max-width: 100vw;
-}
-
-/* ---- MOBILE FIRST: xs (< 600px) ---- */
-@media (max-width: 599px) {
-
-  /* App-wide padding reduction */
-  .MuiContainer-root {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-  }
-
-  /* Reduce card padding */
-  .MuiCardContent-root {
-    padding: 14px !important;
-  }
-  .MuiCardContent-root:last-child {
-    padding-bottom: 14px !important;
-  }
-
-  /* Stack toolbar buttons */
-  .MuiToolbar-root {
-    flex-wrap: wrap;
-    gap: 4px;
-    min-height: 60px !important;
-  }
-
-  /* Make all Recharts charts shorter on mobile */
-  .recharts-wrapper {
-    height: 200px !important;
-  }
-
-  /* Admin table: allow horizontal scroll */
-  .MuiTableContainer-root {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Flashcard widget and active tools - auto height on mobile */
-  .active-tool-box {
-    height: auto !important;
-    min-height: 380px;
-  }
-
-  /* Typography scale down */
-  .MuiTypography-h2 {
-    font-size: 2rem !important;
-  }
-  .MuiTypography-h3 {
-    font-size: 1.6rem !important;
-  }
-  .MuiTypography-h4 {
-    font-size: 1.3rem !important;
-  }
-  .MuiTypography-h5 {
-    font-size: 1.1rem !important;
-  }
-  .MuiTypography-h6 {
-    font-size: 1rem !important;
-  }
-
-  /* Stack chips */
-  .MuiStack-root {
-    flex-wrap: wrap;
-  }
-
-  /* Pomodoro timer clock: reduce size */
-  .pomodoro-clock-text {
-    font-size: 2.5rem !important;
-  }
-}
-
-/* ---- TABLET: sm (600px - 899px) ---- */
-@media (min-width: 600px) and (max-width: 899px) {
-
-  /* Slightly less padding */
-  .MuiContainer-root {
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-  }
-
-  /* Admin table scrollable */
-  .MuiTableContainer-root {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Active tools widget - allow flexible height on tablet */
-  .active-tool-box {
-    height: auto !important;
-    min-height: 400px;
-  }
-}
-
-/* ---- DESKTOP: md+ (900px+) ---- */
-@media (min-width: 900px) {
-  .active-tool-box {
-    height: 480px;
-  }
-}
-
-/* ================================
-   GLOBAL FIXES
-================================ */
-
-/* All images / media are responsive */
-img, video, canvas {
+.app-shell .progress-chart .MuiCard-root {
+  min-width: 0;
   max-width: 100%;
-  height: auto;
 }
-
-/* Prevent long words / URLs from breaking layouts */
-p, span, li, td, th {
-  overflow-wrap: break-word;
-  word-break: break-word;
+.app-shell .progress-chart .recharts-responsive-container {
+  min-width: 0;
+  width: 100% !important;
+  max-width: 100% !important;
 }
-
-/* Tables always scrollable on small screens */
-.responsive-table-wrapper {
+.app-shell .active-tool-box {
   width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Dialog: max-width on mobile so it doesn't overflow */
-.MuiDialog-paper {
-  margin: 12px !important;
-  max-width: calc(100vw - 24px) !important;
-}
-
-/* Chip: don't overflow */
-.MuiChip-root {
   max-width: 100%;
-  overflow: hidden;
+  min-width: 0;
+}
+.app-shell .topics-statistics {
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
-/* Buttons: don't overflow */
-.MuiButton-root {
-  white-space: nowrap;
+/* Auth */
+.auth-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+  background:
+    linear-gradient(135deg, rgba(8,127,120,.1) 0 1px, transparent 1px 100%),
+    radial-gradient(circle at 10% 10%, rgba(8,127,120,.13), transparent 34%),
+    radial-gradient(circle at 90% 90%, rgba(233,166,59,.12), transparent 30%),
+    var(--canvas);
+  background-size: 24px 24px, auto, auto, auto;
+}
+.auth-card {
+  width: 100%;
+  max-width: 960px;
+  min-width: 0;
+  flex: 1 1 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  border: 1px solid var(--line) !important;
+  box-shadow: 0 24px 60px rgba(16,42,43,.13) !important;
+}
+.auth-card > * { min-width: 0; }
+.auth-shell > .MuiContainer-root {
+  flex-direction: column;
+  align-items: center;
+}
+.auth-brand-panel .MuiTypography-h4 {
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3vw, 2.1rem);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+.auth-brand-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(28px, 5vw, 56px);
+  background: var(--ink);
+  color: #fff;
+}
+.auth-form-panel { padding: clamp(24px, 5vw, 56px); }
+
+@media (max-width: 760px) {
+  .auth-card { grid-template-columns: 1fr; }
+  .auth-brand-panel { padding: 28px 24px; min-height: 220px; }
+  .auth-form-panel { padding: 24px; }
+  .app-shell .MuiContainer-root { padding-left: 16px !important; padding-right: 16px !important; }
+}
+@media (max-width: 599px) {
+  .MuiCardContent-root { padding: 18px !important; }
+  .MuiButton-root { min-height: 44px; }
+  .MuiIconButton-root { min-width: 44px; min-height: 44px; }
+  .MuiTableContainer-root { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .active-tool-box { height: auto !important; min-height: 0 !important; }
+  .MuiDialog-paper { margin: 12px !important; max-width: calc(100vw - 24px) !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
 }

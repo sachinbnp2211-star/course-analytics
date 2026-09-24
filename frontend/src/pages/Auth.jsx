@@ -14,8 +14,9 @@ import {
   IconButton,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import logo from '../assets/logo.svg';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 const COLORS = {
   primary: '#0F766E',
   secondary: '#06B6D4',
@@ -113,7 +114,7 @@ const res = await fetch(`${API_URL}/api/register`, {
         body: JSON.stringify({ username, email, password }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         setError(data.error || 'Registration failed');
@@ -153,37 +154,27 @@ const res = await fetch(`${API_URL}/api/register`, {
     setError('');
 
     try {
-      console.log('🔑 Login attempt:', { username, API_URL });
       const res = await fetch(`${API_URL}/api/login`,{
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        console.error('❌ Login failed:', data.error);
         setError(data.error || 'Login failed');
         return;
       }
-
-      console.log('✅ Login successful! Response:', { token: data.token ? 'exists' : 'missing', user: data.user });
 
       // Save token and user info
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       
-      console.log('💾 Saved to localStorage:', {
-        token: localStorage.getItem('token') ? '✅ stored' : '❌ failed',
-        user: localStorage.getItem('user') ? '✅ stored' : '❌ failed'
-      });
-      
       // Call success callback with user data
       onLoginSuccess(data.user);
 
-    } catch (e) {
-      console.error('❌ Login exception:', e);
+    } catch {
       setError('Network error. Make sure backend is running.');
     } finally {
       setLoading(false);
@@ -203,8 +194,8 @@ const res = await fetch(`${API_URL}/api/register`, {
 
   return (
     <Box
+      className="auth-shell"
       sx={{
-        background: COLORS.bg,
         minHeight: '100vh',
         display: 'flex',
         alignItems: 'center',
@@ -212,31 +203,45 @@ const res = await fetch(`${API_URL}/api/register`, {
         py: 4,
       }}
     >
-      <Container maxWidth="sm">
+      <Container maxWidth={false} sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
         <Card
+          className="auth-card"
           sx={{
+            width: '100%',
+            maxWidth: 960,
+            minWidth: 0,
+            flex: '1 1 100%',
             borderRadius: 4,
             boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
             overflow: 'hidden',
           }}
         >
           <Box
+            className="auth-brand-panel"
             sx={{
-              background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
               p: 3,
               textAlign: 'center',
             }}
           >
-            <Typography
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: { xs: 'center', sm: 'flex-start' }, mb: 4 }}>
+              <Box
+                component="img"
+                src={logo}
+                alt="AI Study Planner logo"
+                sx={{ width: 52, height: 52, display: 'block' }}
+              />
+              <Typography
               variant="h4"
               sx={{
                 fontWeight: 700,
                 color: '#fff',
-                mb: 1,
+                mb: 0,
+                textAlign: 'left',
               }}
             >
               📚 AI Study Planner
-            </Typography>
+              </Typography>
+            </Box>
             <Typography
               variant="subtitle1"
               sx={{
@@ -244,11 +249,16 @@ const res = await fetch(`${API_URL}/api/register`, {
                 fontWeight: 500,
               }}
             >
-              Your Personalized Learning Journey
+              Plan with clarity. Learn with momentum.
             </Typography>
+            <Box sx={{ display: { xs: 'none', sm: 'block' }, mt: 4, textAlign: 'left' }}>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,.72)', lineHeight: 1.7 }}>
+                Build a realistic study rhythm, keep every session visible, and turn ambitious goals into the next clear action.
+              </Typography>
+            </Box>
           </Box>
 
-          <CardContent sx={{ p: 4 }}>
+          <CardContent className="auth-form-panel" sx={{ p: 4 }}>
             <Tabs
               value={tab}
               onChange={handleTabChange}
@@ -262,7 +272,7 @@ const res = await fetch(`${API_URL}/api/register`, {
               }}
             >
               <Tab
-                label="🔐 Login"
+                label="Log in"
                 sx={{
                   fontWeight: 600,
                   fontSize: '1rem',
@@ -271,7 +281,7 @@ const res = await fetch(`${API_URL}/api/register`, {
                 }}
               />
               <Tab
-                label="✨ Register"
+                label="Create account"
                 sx={{
                   fontWeight: 600,
                   fontSize: '1rem',
@@ -346,6 +356,7 @@ const res = await fetch(`${API_URL}/api/register`, {
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton
+                          aria-label={showPassword ? "Hide password" : "Show password"}
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
                           size="small"
@@ -375,7 +386,7 @@ const res = await fetch(`${API_URL}/api/register`, {
                   type="submit"
                   disabled={loading}
                 >
-                  {loading ? '⏳ Logging in...' : '🚀 Login'}
+                  {loading ? 'Signing in…' : 'Sign in'}
                 </Button>
               </form>
             ) : (
@@ -436,6 +447,7 @@ const res = await fetch(`${API_URL}/api/register`, {
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton
+                          aria-label={showPassword ? "Hide password" : "Show password"}
                           onClick={() => setShowPassword(!showPassword)}
                           edge="end"
                           size="small"
@@ -466,6 +478,7 @@ const res = await fetch(`${API_URL}/api/register`, {
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton
+                          aria-label={showConfirmPassword ? "Hide password confirmation" : "Show password confirmation"}
                           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                           edge="end"
                           size="small"
@@ -495,7 +508,7 @@ const res = await fetch(`${API_URL}/api/register`, {
                   type="submit"
                   disabled={loading}
                 >
-                  {loading ? '⏳ Creating account...' : '✨ Register'}
+                  {loading ? 'Creating account…' : 'Create account'}
                 </Button>
               </form>
             )}

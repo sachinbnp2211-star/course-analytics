@@ -4,6 +4,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
+# Werkzeug 3.1 defaults to scrypt, but the deployment Python may be linked
+# against LibreSSL, which does not expose hashlib.scrypt. PBKDF2-SHA256 is
+# supported by the same Werkzeug API and remains a password-specific KDF.
+PASSWORD_HASH_METHOD = "pbkdf2:sha256:600000"
+
 class User(db.Model):
     """User model"""
     __tablename__ = 'users'
@@ -23,7 +28,7 @@ class User(db.Model):
     streak = db.relationship('StudyStreak', backref='user', lazy=True, cascade='all, delete-orphan', uselist=False)
     
     def set_password(self, password):
-        self.password = generate_password_hash(password)
+        self.password = generate_password_hash(password, method=PASSWORD_HASH_METHOD)
     
     def check_password(self, password):
         return check_password_hash(self.password, password)

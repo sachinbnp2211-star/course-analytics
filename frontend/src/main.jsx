@@ -16,7 +16,7 @@ const getTheme = (mode) => createTheme({
     warning:    { main: '#f59e0b', light: '#fbbf24', dark: '#d97706' },
     error:      { main: '#f43f5e', light: '#fb7185', dark: '#e11d48' },
     background: mode === 'light'
-      ? { default: '#f0f9ff', paper: '#ffffff' }
+      ? { default: '#f7fafc', paper: '#ffffff' }
       : { default: '#061311', paper: '#0b1f1c' },
     text: mode === 'light'
       ? {
@@ -280,7 +280,7 @@ export const Root = () => {
     <ThemeModeContext.Provider value={{ mode, toggleMode }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <App />
         </BrowserRouter>
       </ThemeProvider>

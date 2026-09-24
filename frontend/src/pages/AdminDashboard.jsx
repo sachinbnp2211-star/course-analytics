@@ -4,7 +4,7 @@ import {
   Toolbar,
   Typography,
   Container,
-  Grid,
+  GridLegacy as Grid,
   Card,
   CardContent,
   Button,
@@ -46,6 +46,8 @@ import {
   LineChart,
   Line,
 } from "recharts";
+
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 const AdminDashboard = ({ token, onLogout, onBack }) => {
   const { mode, toggleMode } = useContext(ThemeModeContext);
@@ -174,7 +176,7 @@ const AdminDashboard = ({ token, onLogout, onBack }) => {
     if (!silent) setLoadingStats(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:5000/api/admin/stats", {
+      const res = await fetch(`${API_URL}/api/admin/stats`, {
         headers: authHeaders,
       });
       if (!res.ok) {
@@ -192,7 +194,7 @@ const AdminDashboard = ({ token, onLogout, onBack }) => {
     if (!silent) setLoadingUsers(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:5000/api/admin/users", {
+      const res = await fetch(`${API_URL}/api/admin/users`, {
         headers: authHeaders,
       });
       if (!res.ok) {
@@ -232,7 +234,7 @@ const AdminDashboard = ({ token, onLogout, onBack }) => {
   const handleToggleActive = async (user) => {
     setBusyUserId(user.id);
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/users/${user.id}`, {
+      const res = await fetch(`${API_URL}/api/admin/users/${user.id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -258,7 +260,7 @@ const AdminDashboard = ({ token, onLogout, onBack }) => {
 
     setBusyUserId(user.id);
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/users/${user.id}`, {
+      const res = await fetch(`${API_URL}/api/admin/users/${user.id}`, {
         method: "DELETE",
         headers: authHeaders,
       });
@@ -289,7 +291,7 @@ const AdminDashboard = ({ token, onLogout, onBack }) => {
     setExporting(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:5000/api/admin/export", {
+      const res = await fetch(`${API_URL}/api/admin/export`, {
         headers: authHeaders,
       });
       if (!res.ok) {

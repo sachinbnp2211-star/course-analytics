@@ -55,7 +55,7 @@ class GeminiProvider(AIProvider):
         api_key = os.getenv("GEMINI_API_KEY", "").strip()
         model = model_override or os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
         
-        if not api_key:
+        if not api_key or api_key.startswith(("your_", "replace_", "<")):
             logger.warning("⚠️ GEMINI_API_KEY not set")
             self.available = False
             return
@@ -389,7 +389,7 @@ class GroqProvider(AIProvider):
         api_key = os.getenv("GROQ_API_KEY", "").strip()
         model = model_override or os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
-        if not api_key:
+        if not api_key or api_key.startswith(("your_", "replace_", "<")):
             logger.warning("⚠️ GROQ_API_KEY not set")
             self.available = False
             return

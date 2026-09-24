@@ -58,6 +58,7 @@ const TopicsStatistics = ({ plan }) => {
 
   return (
     <Card
+      className="topics-statistics"
       sx={{
         mb: 3,
         borderRadius: 3,

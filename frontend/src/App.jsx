@@ -6,7 +6,7 @@ import {
   Toolbar,
   Typography,
   Container,
-  Grid,
+  GridLegacy as Grid,
   Card,
   CardContent,
   Button,
@@ -66,7 +66,6 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PersonIcon from "@mui/icons-material/Person";
 import MenuIcon from "@mui/icons-material/Menu";
-import DashboardIcon from "@mui/icons-material/Dashboard";
 import HistoryIcon from "@mui/icons-material/History";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
@@ -78,12 +77,13 @@ import PomodoroTimer from "./components/PomodoroTimer";
 import SearchFilter from "./components/SearchFilter";
 import ProgressChart from "./components/ProgressChart";
 import StreakTracker from "./components/StreakTracker";
-import FlashcardWidget from "./components/FlashcardWidget";
 import ExportPlan from "./components/ExportPlan";
 import TopicsStatistics from "./components/TopicsStatistics";
 import { ThemeModeContext } from "./theme";
+import logo from "./assets/logo.svg";
 
-const API_URL = import.meta.env.VITE_API_URL;
+// Use Vite's local proxy in development and an explicit API origin in production.
+const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 const COLORS = {
   ahead: "#10B981",
@@ -91,7 +91,7 @@ const COLORS = {
   behind: "#EF4444",
   primary: "#0F766E",
   secondary: "#0EA5E9",
-  bg: "linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 30%, #99f6e4 70%, #5eead4 100%)",
+  bg: "#f7fafc",
   cardBg: "#FFFFFF",
 };
 
@@ -297,7 +297,6 @@ function App() {
   const [showHistory, setShowHistory] = useState(false);
   
   // NEW FEATURES STATE
-  const [flashcards, setFlashcards] = useState([]);
   const [streakData, setStreakData] = useState({ current_streak: 0, longest_streak: 0, last_study_date: null });
   const [planAnalytics, setPlanAnalytics] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
@@ -305,6 +304,7 @@ function App() {
   const [searchError, setSearchError] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [notifications, setNotifications] = useState([]);
   const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
@@ -357,7 +357,7 @@ function App() {
     try {
       const token = getToken();
       console.log('📊 fetchStreak - token:', token ? '✅ exists' : '❌ missing');
-      const res = await fetch(`http://localhost:5000/api/stats/streak`, {
+      const res = await fetch(`${API_URL}/api/stats/streak`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (!res.ok) {
@@ -372,7 +372,7 @@ function App() {
 
   const updateStreak = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/stats/streak/update`, {
+      const res = await fetch(`${API_URL}/api/stats/streak/update`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${getToken()}` }
       });
@@ -388,36 +388,12 @@ function App() {
     }
   };
 
-  // Fetch Flashcards
-  const fetchFlashcards = useCallback(async (planId) => {
-    if (!planId) {
-      console.warn('⚠️ No plan ID provided to fetchFlashcards');
-      return;
-    }
-    try {
-      const res = await fetch(`http://localhost:5000/api/flashcards/${planId}`, {
-        headers: { "Authorization": `Bearer ${getToken()}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        console.log('📇 Fetched flashcards:', data);
-        // Extract the flashcards array from response
-        setFlashcards(data.flashcards || []);
-      } else {
-        console.warn('⚠️ Failed to fetch flashcards:', res.status);
-        setFlashcards([]);
-      }
-    } catch (e) {
-      console.error('❌ Error fetching flashcards:', e);
-      setFlashcards([]);
-    }
-  }, []);
 
   // Fetch Analytics
   const fetchAnalytics = useCallback(async (planId) => {
     if (!planId) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/analytics/${planId}`, {
+      const res = await fetch(`${API_URL}/api/analytics/${planId}`, {
         headers: { "Authorization": `Bearer ${getToken()}` }
       });
       if (res.ok) {
@@ -441,7 +417,7 @@ function App() {
         params.set('min_completion', filters.min_completion);
       }
 
-      const res = await fetch(`http://localhost:5000/api/plans/search?${params.toString()}`, {
+      const res = await fetch(`${API_URL}/api/plans/search?${params.toString()}`, {
         headers: { "Authorization": `Bearer ${getToken()}` }
       });
 
@@ -462,68 +438,6 @@ function App() {
     }
   };
 
-  const handleAddFlashcard = async (cardData) => {
-    console.log('🎯 handleAddFlashcard called with:', cardData);
-    console.log('📍 currentPlanId:', currentPlanId);
-    
-    try {
-      if (!currentPlanId) {
-        console.warn('⚠️ currentPlanId is empty!');
-        showSnackbar('Please generate a study plan first', 'error');
-        return;
-      }
-      
-      if (!cardData.plan_id) {
-        console.error('❌ No plan_id in cardData!', cardData);
-        showSnackbar('Error: No plan ID in flashcard data', 'error');
-        return;
-      }
-      
-      console.log('📤 Sending POST request to /api/flashcards');
-      const res = await fetch(`http://localhost:5000/api/flashcards`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${getToken()}` 
-        },
-        body: JSON.stringify(cardData)
-      });
-      
-      console.log('📬 Response status:', res.status);
-      
-      if (res.ok) {
-        const responseData = await res.json();
-        console.log('✅ Flashcard created:', responseData);
-        showSnackbar('📇 Flashcard added!');
-        
-        // Fetch updated flashcards
-        console.log('🔄 Fetching flashcards for plan:', currentPlanId);
-        fetchFlashcards(currentPlanId);
-      } else {
-        const errData = await res.json();
-        console.error('❌ Failed with status:', res.status, 'Message:', errData);
-        showSnackbar(`Error: ${errData.error || 'Failed to add flashcard'}`, 'error');
-      }
-    } catch (e) {
-      console.error('💥 Exception in handleAddFlashcard:', e);
-      showSnackbar('Failed to add flashcard: ' + e.message, 'error');
-    }
-  };
-
-  const handleDeleteFlashcard = async (id) => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/flashcards/${id}`, {
-        method: "DELETE",
-        headers: { "Authorization": `Bearer ${getToken()}` }
-      });
-      if (res.ok) {
-        showSnackbar('🗑️ Flashcard deleted!');
-        setFlashcards(prev => prev.filter(f => f.id !== id));
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   const handlePomodoroComplete = async (session) => {
     if (!currentPlanId) {
@@ -535,7 +449,7 @@ function App() {
     const duration = session.duration || session.focus_duration || 1500;
 
     try {
-      const pomodoroRes = await fetch(`http://localhost:5000/api/pomodoro`, {
+      const pomodoroRes = await fetch(`${API_URL}/api/pomodoro`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -554,7 +468,7 @@ function App() {
         return;
       }
 
-      const sessionRes = await fetch(`http://localhost:5000/api/plans/${currentPlanId}/session`, {
+      const sessionRes = await fetch(`${API_URL}/api/plans/${currentPlanId}/session`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -570,7 +484,7 @@ function App() {
         console.warn('Failed to log study session for analytics');
       }
 
-      const streakRes = await fetch(`http://localhost:5000/api/stats/streak/update`, {
+      const streakRes = await fetch(`${API_URL}/api/stats/streak/update`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -594,10 +508,8 @@ function App() {
   // Fetch plan details when currentPlanId changes
   useEffect(() => {
     if (currentPlanId) {
-      fetchFlashcards(currentPlanId);
       fetchAnalytics(currentPlanId);
     } else {
-      setFlashcards([]);
       setPlanAnalytics(null);
     }
   }, [currentPlanId]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -689,7 +601,6 @@ function App() {
     setIsAdmin(false);
     setCurrentUserId(null);
     setPlan([]);
-    setFlashcards([]);
     setPlanAnalytics(null);
     setStreakData({ current_streak: 0, longest_streak: 0, last_study_date: null });
     setSearchResults([]);
@@ -710,8 +621,7 @@ function App() {
       setCompletedPlans([completedPlan, ...completedPlans]);
       setPlan([]);
       setCurrentPlanId(null);
-      setFlashcards([]);
-      setPlanAnalytics(null);
+        setPlanAnalytics(null);
       showSnackbar("🎉 Plan marked as completed! Moved to archive.");
     }
   };
@@ -799,6 +709,8 @@ function App() {
   // GENERATE PLAN - FIXED
   // ===============================
   const generatePlan = async () => {
+    if (isGenerating) return;
+    setIsGenerating(true);
     try {
       // Get the selected subject data
       const selectedSubjectData = allSubjects[subject];
@@ -848,7 +760,7 @@ function App() {
         const token = getToken();
         console.log('💾 Saving plan - token:', token ? '✅ exists' : '❌ missing', 'token:', token ? token.substring(0, 20) + '...' : 'null');
         const savedSettings = JSON.parse(localStorage.getItem("ai_model_settings") || "{}");
-        const res = await fetch(`http://localhost:5000/api/generate-plan`, {
+        const res = await fetch(`${API_URL}/api/generate-plan`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -907,6 +819,8 @@ function App() {
     } catch (error) {
       console.error('Error:', error);
       showSnackbar('Error generating plan', 'error');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -1040,6 +954,9 @@ function App() {
     : 0;
 
   const totalTopics = plan.reduce((sum, day) => sum + (day.topics?.length || 0), 0);
+  const nextTask = plan
+    .flatMap((day) => (day.topics || []).map((topic) => ({ ...topic, day: day.day })))
+    .find((topic) => !topic.completed);
 
   // Show auth page if not logged in
   if (!isAuthenticated) {
@@ -1052,7 +969,7 @@ function App() {
   // UI
   // ===============================
   const mainView = (
-    <Box sx={{ 
+    <Box className="app-shell" sx={{
       background: isDarkMode 
         ? "linear-gradient(135deg, #030a06 0%, #051c12 50%, #0a2818 100%)" 
         : COLORS.bg, 
@@ -1095,7 +1012,12 @@ function App() {
                 }
               }}
             >
-              <DashboardIcon sx={{ color: "#fff", fontSize: 24 }} />
+              <Box
+                component="img"
+                src={logo}
+                alt="AI Study Planner"
+                sx={{ width: 34, height: 34, display: "block" }}
+              />
             </Box>
             <Box sx={{ display: { xs: "none", sm: "block" } }}>
               <Typography
@@ -1516,7 +1438,7 @@ function App() {
       <Container maxWidth="lg" sx={{ py: { xs: 2, md: 3 }, px: { xs: 1.5, sm: 2, md: 3 } }}>
         <Box sx={{ mb: 3 }}>
           <Card
-            className="fade-in"
+            className="hero-card fade-in"
             sx={{
               borderRadius: "22px",
               overflow: "hidden",
@@ -1553,13 +1475,13 @@ function App() {
                       color: "#fff",
                     }}
                   >
-                    Build a focused<br />study rhythm.
+                    Make progress<br />feel inevitable.
                   </Typography>
                   <Typography
                     variant="body1"
                     sx={{ color: "rgba(255,255,255,0.7)", maxWidth: 480, fontSize: "0.95rem", lineHeight: 1.7, mb: 3 }}
                   >
-                    Generate adaptive plans, track momentum, and keep streaks alive across every subject.
+                    Your workspace for turning a big learning goal into one clear, achievable session at a time.
                   </Typography>
                   <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ gap: 1 }}>
                     {[
@@ -1598,14 +1520,14 @@ function App() {
                         Today's Focus
                       </Typography>
                       <Typography variant="h5" sx={{ fontWeight: 800, fontSize: "1.4rem", color: "#fff", mb: 2 }}>
-                        {subject}
+                        {nextTask ? "Next up" : "Ready to plan"}
                       </Typography>
                       <Divider sx={{ borderColor: "rgba(255,255,255,0.1)", mb: 2 }} />
                       <Stack spacing={1.5}>
                         {[
-                          { dot: "#34d399", text: `Level: ${level}` },
-                          { dot: "#22d3ee", text: `Hours/day: ${hours}` },
-                          { dot: "#fbbf24", text: "Tools: Pomodoro, Cards, Streak" },
+                          { dot: "#34d399", text: nextTask?.name || `${subject} study plan` },
+                          { dot: "#22d3ee", text: nextTask ? `Day ${nextTask.day} · ${nextTask.hours}h focus` : "Generate a plan to get started" },
+                          { dot: "#fbbf24", text: `${totalProgress}% complete · ${streakData.current_streak || 0} day streak` },
                         ].map((item) => (
                           <Box key={item.text} sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
                             <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: item.dot, boxShadow: `0 0 8px ${item.dot}60` }} />
@@ -1706,6 +1628,7 @@ function App() {
 
         {/* CONTROLS */}
         <Paper 
+          className="setup-card"
           elevation={0} 
           sx={{ 
             p: 3, 
@@ -1862,8 +1785,9 @@ function App() {
                   }
                 }}
                 onClick={generatePlan}
+                disabled={isGenerating}
               >
-                🚀 Generate
+                {isGenerating ? "Generating…" : "🚀 Generate"}
               </Button>
             </Grid>
 
@@ -2130,19 +2054,21 @@ function App() {
               </Grid>
             </Grid>
 
-            {/* ACTIVE STUDY SECTION: Pomodoro, Flashcards, Streak */}
-            <Box sx={{ 
+            {/* ACTIVE STUDY SECTION: Pomodoro & Streak */}
+            <Box className="tools-section" sx={{
               background: "linear-gradient(135deg, #064e3b 0%, #065f46 100%)",
               borderRadius: 3,
               p: { xs: 2, md: 3 },
               mb: 4,
-              border: "1px solid #047857"
+              border: "1px solid #047857",
+              overflow: "hidden",
+              maxWidth: "100%"
             }}>
-              <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: "#34d399", mt: 0, fontSize: "1.4rem" }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: "#34d399", mt: 0, fontSize: { xs: "1.2rem", md: "1.4rem" } }}>
                 🔥 Active Study Tools
               </Typography>
               <Grid container spacing={2.5} sx={{ alignItems: "stretch" }}>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={6}>
                   <Box
                     className="active-tool-box"
                     sx={{ 
@@ -2158,7 +2084,7 @@ function App() {
                     />
                   </Box>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid item xs={12} md={6}>
                   <Box
                     className="active-tool-box"
                     sx={{ 
@@ -2173,41 +2099,28 @@ function App() {
                     />
                   </Box>
                 </Grid>
-                <Grid item xs={12} md={4}>
-                  <Box
-                    className="active-tool-box"
-                    sx={{ 
-                      width: "100%",
-                      transition: "all 0.3s ease",
-                      "&:hover": { transform: "translateY(-4px)" }
-                    }}
-                  >
-                    <FlashcardWidget 
-                      planId={currentPlanId}
-                      flashcards={flashcards}
-                      onAddFlashcard={handleAddFlashcard}
-                      onDeleteFlashcard={handleDeleteFlashcard}
-                      onFlashcardsGenerated={(newCards) => setFlashcards(prev => [...prev, ...newCards])}
-                    />
-                  </Box>
-                </Grid>
               </Grid>
             </Box>
 
             {/* ANALYTICS SECTION */}
-            <Box sx={{ 
+            <Box className="analytics-section" sx={{
               background: "linear-gradient(135deg, #0f766e 0%, #115e59 100%)",
               borderRadius: 3,
-              p: { xs: 2, md: 3 },
+              p: { xs: 2, sm: 2.5, md: 3 },
               mb: 4,
-              border: "1px solid #0d9488"
+              border: "1px solid #0d9488",
+              overflow: "hidden",
+              maxWidth: "100%"
             }}>
-              <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: "#5eead4", mt: 0, fontSize: "1.4rem" }}>
+              <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: "#5eead4", mt: 0, fontSize: { xs: "1.2rem", md: "1.4rem" } }}>
                 📈 Course Analytics & Progress
               </Typography>
               <Grid container spacing={2.5}>
                 <Grid item xs={12}>
                   <Box sx={{ 
+                    width: "100%",
+                    maxWidth: "100%",
+                    overflow: "hidden",
                     transition: "all 0.3s ease",
                     "&:hover": {
                       transform: "translateY(-2px)"
@@ -2236,7 +2149,7 @@ function App() {
         {plan.length > 0 && <TopicsStatistics plan={plan} />}
 
         {plan.length > 0 && (
-          <Box sx={{ 
+          <Box className="plan-section" sx={{
             mt: 1,
             background: isDarkMode
               ? "linear-gradient(135deg, #0a3a45 0%, #0f4a55 100%)"

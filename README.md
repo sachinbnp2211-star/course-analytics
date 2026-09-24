@@ -178,7 +178,7 @@ StudySession
 
 ## Security Features
 
-- Password hashing with bcrypt
+- Password hashing with Werkzeug PBKDF2-SHA256
 - JWT token-based authentication
 - CORS protection
 - Server-side input validation
@@ -327,4 +327,3 @@ For issues and questions:
 
 Made with dedication by Harshal Bsys27
 <!-- Pair programming commit -->
-

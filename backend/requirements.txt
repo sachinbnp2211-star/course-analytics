@@ -7,6 +7,8 @@ PyJWT==2.8.0
 gunicorn
 
 # AI Providers (choose one or install all)
+# Groq (optional; required when AI_PROVIDER=groq or a request explicitly selects Groq)
+groq
 # Gemini (free tier): https://ai.google.dev
 google-generativeai
 
@@ -20,4 +22,3 @@ huggingface-hub
 langchain
 langchain-google-genai
 langchain-core
-
