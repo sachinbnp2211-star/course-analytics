@@ -1,4 +1,5 @@
 name: Deploy frontend to GitHub Pages
+# Deploys the Vite frontend after Pages is enabled for the repository.
 
 on:
   push:
