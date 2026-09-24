@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: process.env.NODE_ENV === 'production' ? '/ai-study-planner/' : '/',
+  base: process.env.NODE_ENV === 'production' ? '/course-analytics/' : '/',
   build: {
     outDir: 'dist',
     sourcemap: false,
